@@ -1,11 +1,16 @@
 import sys
 import cv2
+import os
+import base64
 import numpy as np
-from flask import Flask
+from flask import Flask, request, make_response
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__);
 CORS(app)
+
+UPLOAD_FOLDER = './uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route("/", methods=['GET'])
 def hello():
@@ -15,17 +20,14 @@ def hello():
 @app.route('/new_image', methods=["POST"])
 def show_image():
     files = request.files
-    print files
+    intensity = request.form['intensity']
+    image = files['image']
 
-def blur(image, intensity):
-    img = cv2.imread(image)
-    cv2.imshow('Original', img)
+    f = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
+    image.save(f)
+    img = cv2.imread('./uploads/' + image.filename);
 
-    #Stuff for zoom
-    rows, cols, _channels = map(int, img.shape)
-    img = cv2.pyrUp(img, dstsize=(2 * cols, 2 * rows))
-    size = intensity 
-
+    size = int(intensity)
 
     # generating the kernel
     kernel_motion_blur = np.zeros((size, size))
@@ -34,11 +36,9 @@ def blur(image, intensity):
 
     # applying the kernel to the input image
     output = cv2.filter2D(img, -1, kernel_motion_blur)
+    retval, buffer = cv2.imencode('.png', output)
+    png_as_text = base64.b64encode(buffer)
+    response = make_response(png_as_text)
+    response.headers['Content-Type'] = 'image/png'
+    return response
 
-    cv2.imshow('Motion Blur', output)
-    cv2.waitKey(0)
-
-if __name__ == '__main__':
-    image = sys.argv[1]
-    intensity = int(sys.argv[2])
-    blur(image, intensity)
