@@ -16,8 +16,12 @@ class App extends Component {
     }   
     render() {
         this.fetch()
+
+        var header_style = {
+            textAlign: "center"
+        }
         return (
-            <h1>hello</h1>
+            <h1 style={header_style}>hello</h1>
         );
     }
 }

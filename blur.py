@@ -9,8 +9,13 @@ CORS(app)
 
 @app.route("/", methods=['GET'])
 def hello():
-    response = "hi!"
+    response = "Index!"
     return response
+
+@app.route('/new_image', methods=["POST"])
+def show_image():
+    files = request.files
+    print files
 
 def blur(image, intensity):
     img = cv2.imread(image)
