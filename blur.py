@@ -25,8 +25,9 @@ def show_image():
 
     f = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
     image.save(f)
-    img = cv2.imread('./uploads/' + image.filename);
-
+    img_path = ('./uploads/' + image.filename)
+    img = cv2.imread(img_path)
+    os.remove(img_path)
     size = int(intensity)
 
     # generating the kernel

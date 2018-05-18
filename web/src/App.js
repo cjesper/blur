@@ -51,6 +51,8 @@ class App extends Component {
     post = () => {
         var self = this;
         if (this.state.input_image != "") {
+        var processing = document.getElementById('loading_img')
+        processing.style.display="block";
         var selected_image= document.getElementById('input').files[0];
         var form_data = new FormData();
         form_data.append("image", selected_image)
@@ -65,6 +67,7 @@ class App extends Component {
                 var image = new Image();
                 image.src = 'data:image/png;base64,'+res.data;
                 self.setState({output_image : image.src})
+                processing.style.display="none";
             })
             .catch(function (err) {
                 console.log(err)
@@ -75,38 +78,45 @@ class App extends Component {
     }
     render() {
         var header_style = {
-            textAlign: "center"
+            textAlign: "center",
+            marginBottom : "10px"
         }
         return (
-            <Row>
-                <Col md lg />
-                <Col md lg>
+                <Col md lg xs>
                         <h1 style={header_style}>Blurrify</h1>
                         <Row>
-                            <div style={{margin: "auto"}}>
-                            <label style={{margin:"auto"}}>
-                                  <input style={{margin:"auto"}} onChange={this.display_original} type="file" id="input" />
+                            <label style={{
+                                margin : "auto", width : "85px",
+                                fontSize : "20px", textAlign : "center",
+                                verticalAlign : "middle",
+                                height : "85px", backgroundColor : "buttonface",
+                                borderRadius : "50%", lineHeight : "350%"
+                            }}>
+                              <input style = {
+                                    {display: "none"
+                                }} onChange={this.display_original} type="file" id="input" />
+                                Choose! 
                             </label>
-                                <div style={{width: "100%", maxWidth: "100%"}}>
-                                    <img id="input_img" style={{position : "relative", display: "flex", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.input_image} alt="No input yet" />
+                                <div style={{marginTop: "10px", width: "100%", height: "100%", maxWidth: "100%", minWidth: "100%", minHeight: "100%"}}>
+                                    <img id="input_img" style={{position : "relative", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.input_image}  />
                                 </div>
-                            </div>
-                        </Row>
-                        <Row>
-                            <div style={{margin: "auto"}}>
-                                <div>
-                                    <h3>Specify intensity</h3>
+                                <div style={{margin: "auto"}}>
+                                    <h3 style={{textAlign: "center"}}>Specify intensity</h3>
                                     <input min="0" max="100" onChange={this.handle_intensity_change} step="1"type="range" id="intensity"></input>
+                                    <button style={
+                                            {margin: "auto", textAlign: "center", 
+                                            display: "flex", width: "75px", 
+                                            fontSize : "25px",
+                                            height: "75px", borderRadius: "50%"
+                                            
+                                    }}onClick={this.post}>Blur!</button>
                                 </div>
-                                <button style={{width: "150px"}}onClick={this.post}>Post</button>
-                                <div>
-                                    <img id="output_img" style={{maxWidth: "100%", maxHeight: "100%"}} src={this.state.output_image} alt="No output yet" />
+                                <div style={{marginTop: "10px", width: "100%", height: "100%", maxWidth: "100%", minWidth: "100%", minHeight: "100%"}}>
+                                    <img id="output_img" style={{maxWidth: "100%", maxHeight: "100%"}} src={this.state.output_image} />
+                                    <h2 id="loading_img" style={{textAlign: "center", display:"none"}}>Processing...</h2>
                                 </div>
-                            </div>
                         </Row>
                 </Col>
-                <Col md lg />
-            </Row>
         );
     }
 }
