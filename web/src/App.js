@@ -15,7 +15,8 @@ class App extends Component {
         }
     }
     fetch  = () => {
-        axios.get('http://localhost:5000')
+       //axios.get('http://178.62.52.134:5000')
+	axios.get('/')
             .then(function (res) {
                 console.log(res)
             })
@@ -54,7 +55,8 @@ class App extends Component {
         var form_data = new FormData();
         form_data.append("image", selected_image)
         form_data.append("intensity", this.state.intensity)
-        axios.post('http://localhost:5000/new_image', form_data, {
+        //axios.post('http://178.62.52.134:5000/new_image', form_data, {
+        axios.post('/new_image', form_data, {
             headers : {
                 'Content-type' : "multipart/form-data"
             }
