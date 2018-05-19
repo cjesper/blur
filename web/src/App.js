@@ -79,18 +79,19 @@ class App extends Component {
     render() {
         var header_style = {
             textAlign: "center",
-            marginBottom : "10px"
         }
         return (
                 <Col md lg xs>
-                        <h1 style={header_style}>Blurrify</h1>
+                        <h1 style={header_style}>Blur</h1>
+                        <h2 style = {{textAlign : "center"}}>Image "processing" </h2>
                         <Row>
                             <label style={{
                                 margin : "auto", width : "85px",
                                 fontSize : "20px", textAlign : "center",
                                 verticalAlign : "middle",
-                                height : "85px", backgroundColor : "buttonface",
-                                borderRadius : "50%", lineHeight : "350%"
+                                height : "85px", backgroundColor : "red",
+                                borderRadius : "50%", lineHeight : "350%",
+                                marginBottom : "10px"
                             }}>
                               <input style = {
                                     {display: "none"
@@ -106,7 +107,7 @@ class App extends Component {
                                     <button style={
                                             {margin: "auto", textAlign: "center", 
                                             display: "flex", width: "75px", 
-                                            fontSize : "25px",
+                                            fontSize : "25px", marginTop : "15px",
                                             height: "75px", borderRadius: "50%"
                                             
                                     }}onClick={this.post}>Blur!</button>
