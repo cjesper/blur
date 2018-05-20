@@ -7,10 +7,10 @@ from flask import Flask, request, make_response
 from flask_cors import CORS, cross_origin
 
 app = Flask(__name__);
-CORS(app)
 
 UPLOAD_FOLDER = './uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+CORS(app)
 
 @app.route("/", methods=['GET'])
 def hello():
@@ -41,5 +41,6 @@ def show_image():
     png_as_text = base64.b64encode(buffer)
     response = make_response(png_as_text)
     response.headers['Content-Type'] = 'image/png'
+    response.headers.add('Access-Control-Allow-Origin', '*')
     return response
 
