@@ -22,8 +22,8 @@ def show_image():
     files = request.files
     intensity = request.form['intensity']
     image = files['image']
-    print intensity
-    print image
+    app.logger.info(intensity)
+    app.logger.info(image)
 
     f = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
     image.save(f)
@@ -31,18 +31,22 @@ def show_image():
     img = cv2.imread(img_path)
     os.remove(img_path)
     size = int(intensity)
+    app.logger.info("Post save and delete")
 
     # generating the kernel
     kernel_motion_blur = np.zeros((size, size))
     kernel_motion_blur[int((size-1)/2), :] = np.ones(size)
     kernel_motion_blur = kernel_motion_blur / size
+    app.logger.info("Post kernel")
 
     # applying the kernel to the input image
     output = cv2.filter2D(img, -1, kernel_motion_blur)
     retval, buffer = cv2.imencode('.png', output)
     png_as_text = base64.b64encode(buffer)
+    app.logger.info("Post convertion")
     response = make_response(png_as_text)
     response.headers['Content-Type'] = 'image/png'
     response.headers.add('Access-Control-Allow-Origin', '*')
+    app.logger.info("Just before sending res")
     return response
 
