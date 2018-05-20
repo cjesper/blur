@@ -22,6 +22,8 @@ def show_image():
     files = request.files
     intensity = request.form['intensity']
     image = files['image']
+    print intensity
+    print image
 
     f = os.path.join(app.config['UPLOAD_FOLDER'], image.filename)
     image.save(f)
