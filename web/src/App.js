@@ -16,7 +16,6 @@ class App extends Component {
     }
     fetch  = () => {
        axios.get('http://blur-api.carlssonjesper.com/')
-	//axios.get('/')
             .then(function (res) {
                 console.log(res)
             })
@@ -28,16 +27,18 @@ class App extends Component {
     display_original = () => {
         var self = this;
         var selected_image= document.getElementById('input').files[0];
-
-        var reader  = new FileReader();
-        reader.onload = function(e)  {
-            var image = document.createElement("img");
-            image.src = e.target.result;
-            self.setState({
-                input_image : image.src
-            })
-         }
-         reader.readAsDataURL(selected_image);
+        console.log(selected_image)
+        if (selected_image) {
+            var reader  = new FileReader();
+            reader.onload = function(e)  {
+                var image = document.createElement("img");
+                image.src = e.target.result;
+                self.setState({
+                    input_image : image.src
+                })
+             }
+             reader.readAsDataURL(selected_image);
+        }
     }
 
     handle_intensity_change = () => {
