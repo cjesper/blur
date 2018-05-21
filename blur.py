@@ -39,6 +39,8 @@ def show_image():
     kernel_motion_blur = kernel_motion_blur / size
     app.logger.info("Post kernel")
 
+    #Add red hue
+
     # applying the kernel to the input image
     output = cv2.filter2D(img, -1, kernel_motion_blur)
     retval, buffer = cv2.imencode('.png', output)
