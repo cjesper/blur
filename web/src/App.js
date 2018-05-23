@@ -51,6 +51,9 @@ class App extends Component {
 
     post = () => {
         var self = this;
+        self.setState({
+            output_image : ""
+        })
         if (this.state.input_image != "") {
         var processing = document.getElementById('loading_img')
         processing.style.display="block";
@@ -58,7 +61,8 @@ class App extends Component {
         var form_data = new FormData();
         form_data.append("image", selected_image)
         form_data.append("intensity", this.state.intensity)
-        axios.post('http://blur-api.carlssonjesper.com/new_image', form_data, {
+        //axios.post('http://blur-api.carlssonjesper.com/new_image', form_data, {
+        axios.post('http://localhost:5000/new_image', form_data, {
             headers : {
                 'Content-type' : "multipart/form-data"
             }
@@ -80,23 +84,31 @@ class App extends Component {
         var header_style = {
             textAlign: "center",
         }
+
+        var caption_style = {
+            zIndex : 10,
+            color : "green",
+            fontSize : "50px",
+            position: "absolute",
+            top: "110%",
+            right : "50%"
+        }
         return (
                 <Col md lg xs>
                         <h1 style={header_style}>Blur</h1>
-                        <h2 style = {{textAlign : "center"}}>Image "processing" </h2>
                         <Row>
                             <label style={{
                                 margin : "auto", width : "85px",
                                 fontSize : "20px", textAlign : "center",
-                                verticalAlign : "middle",
-                                height : "85px", backgroundColor : "red",
+                                verticalAlign : "middle", color: "white",
+                                height : "85px", backgroundColor : "black",
                                 borderRadius : "50%", lineHeight : "350%",
                                 marginBottom : "10px"
                             }}>
                               <input style = {
                                     {display: "none"
                                 }} onChange={this.display_original} type="file" id="input" />
-                                Choose! 
+                                <b>Choose!</b> 
                             </label>
                                 <div style={{marginTop: "10px", width: "100%", height: "100%", maxWidth: "100%", minWidth: "100%", minHeight: "100%"}}>
                                     <img id="input_img" style={{position : "relative", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.input_image}  />
@@ -114,7 +126,13 @@ class App extends Component {
                                 </div>
                                 <div style={{marginTop: "10px", width: "100%", height: "100%", maxWidth: "100%", minWidth: "100%", minHeight: "100%"}}>
                                     <img id="output_img" style={{maxWidth: "100%", maxHeight: "100%"}} src={this.state.output_image} />
-                                    <h2 id="loading_img" style={{textAlign: "center", display:"none"}}>Processing...</h2>
+                                    <div id="loading_img" style={{display: "none"}} className ="spinner">
+                                      <div id="rect" className = "rect1"></div>
+                                      <div id="rect1" className = "rect2"></div>
+                                      <div id="rect2" className = "rect3"></div>
+                                      <div id="rect3" className = "rect4"></div>
+                                      <div id="rect4" className = "rect5"></div>
+                                    </div>
                                 </div>
                         </Row>
                 </Col>
