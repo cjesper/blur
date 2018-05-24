@@ -20,7 +20,10 @@ class App extends Component {
             image_one_opacity : 1,
             image_two_opacity : 0,
             intensity: 50,
-            selected_fade_speed : 0
+            selected_fade_speed : 0,
+            first_border : "5px solid red",
+            second_border : "",
+            fade_border : ""
         }
     }
     fetch  = () => {
@@ -139,7 +142,9 @@ class App extends Component {
                 var image = document.createElement("img");
                 image.src = e.target.result;
                 self.setState({
-                    fadein_image: image.src
+                    fadein_image: image.src,
+                    second_border : "",
+                    fade_border : "5px solid red"
                 })
              }
              reader.readAsDataURL(selected_image);
@@ -155,6 +160,8 @@ class App extends Component {
                 var image = document.createElement("img");
                 image.src = e.target.result;
                 self.setState({
+                    first_border : "",
+                    second_border : "5px solid red",
                     fadeout_image: image.src
                 })
              }
@@ -309,7 +316,7 @@ class App extends Component {
                                 verticalAlign : "middle", color: "white",
                                 height : "85px", backgroundColor : "grey",
                                 borderRadius : "50%", lineHeight : "350%",
-                                marginBottom : "10px"
+                                marginBottom : "10px", border : this.state.first_border
                             }}>
                               <input style = {
                                     {display: "none"
@@ -326,7 +333,7 @@ class App extends Component {
                                 verticalAlign : "middle", color: "white",
                                 height : "85px", backgroundColor : "black",
                                 borderRadius : "50%", lineHeight : "350%",
-                                marginBottom : "10px"
+                                marginBottom : "10px", border : this.state.second_border
                             }}>
                               <input style = {
                                     {display: "none"
@@ -342,7 +349,7 @@ class App extends Component {
                                 verticalAlign : "middle", color: "white",
                                 height : "85px", backgroundColor : "black",
                                 borderRadius : "50%", lineHeight : "350%",
-                                marginBottom : "10px"
+                                marginBottom : "10px", border : this.state.fade_border
                             }}>
                                 <button style={{display : "none"}} onClick={this.fade_images}> </button>
                                 <b>Fade!</b> 
