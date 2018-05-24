@@ -30,6 +30,12 @@ def show_image():
     img_path = ('./uploads/' + image.filename)
     img = cv2.imread(img_path)
     os.remove(img_path)
+    img1_square_corners = np.float32([[253,211], [563,211], [563,519],[253,519]])
+    img2_quad_corners = np.float32([[234,197], [520,169], [715,483], [81,472]])
+    h, mask = cv2.findHomography(img1_square_corners, img2_quad_corners)
+    out = cv2.warpPerspective(img, h, (800,800))
+    cv2.imshow("result.png", out)
+
     size = int(intensity)
     app.logger.info("Post save and delete")
 
@@ -39,9 +45,8 @@ def show_image():
     kernel_motion_blur = kernel_motion_blur / size
     app.logger.info("Post kernel")
 
-    #Add red hue
-
     # applying the kernel to the input image
+    img = cv2.getPerspectiveTransform(img, img)
     output = cv2.filter2D(img, -1, kernel_motion_blur)
     retval, buffer = cv2.imencode('.png', output)
     png_as_text = base64.b64encode(buffer)

@@ -15,7 +15,12 @@ class App extends Component {
             fadein_image : "",
             input_image : "", 
             output_image : "",
-            intensity: 50
+            show_fade_modal : "none",
+            show_fade_images : "none",
+            image_one_opacity : 1,
+            image_two_opacity : 0,
+            intensity: 50,
+            selected_fade_speed : 0
         }
     }
     fetch  = () => {
@@ -87,7 +92,6 @@ class App extends Component {
 
     //Stuff for fadein/out
     choose_blur = () => {
-      console.log("BLUR")
       var self = this;
       self.setState({
         show_blur : "flex",
@@ -96,17 +100,37 @@ class App extends Component {
     }
     
     choose_fade = () => {
-      console.log("FADE")
       var self = this;
       self.setState({
         show_fade : "flex",
-        show_blur : "none"
+        show_blur : "none",
+        show_fade_modal : "block"
       })
     }
 
+    fade_images = () => {
+        window.scrollTo(0, 0);
+        var self = this;
+        self.setState({
+            show_fade_images : "block"
+        })
+    }
+
+    trigger_fade_modal = () => {
+      var self = this;
+      self.setState({
+        show_fade_modal: "none"
+      })
+    }
+
+    close_fade_images = () => {
+        var self = this;
+        self.setState({
+            show_fade_images : "none"
+        })
+    }
 
     choose_fadein_image = () => {
-        console.log("FADEIN IMAGE")
         var self = this;
         var selected_image= document.getElementById('choose_fadein_image').files[0];
         if (selected_image) {
@@ -123,7 +147,6 @@ class App extends Component {
     }
     
     choose_fadeout_image = () => {
-        console.log("FADEOUT IMAGE")
         var self = this;
         var selected_image= document.getElementById('choose_fadeout_image').files[0];
         if (selected_image) {
@@ -137,6 +160,22 @@ class App extends Component {
              }
              reader.readAsDataURL(selected_image);
         }
+    }
+
+    trigger_fade = () => {
+        var self = this;
+        var old_one_opacity = 1;
+        var old_two_opacity = 0;
+        var interval_timer = 100;
+        var timer = setInterval(() => {
+            if (old_one_opacity <= 0) {
+                clearInterval(timer)
+            }
+            old_one_opacity = old_one_opacity-0.01;
+            old_two_opacity = old_two_opacity+0.01;
+            document.getElementById("image_one").style.opacity=old_one_opacity;
+            document.getElementById("image_two").style.opacity=old_two_opacity;
+        }, interval_timer);
     }
 
     render() {
@@ -158,6 +197,44 @@ class App extends Component {
           height : "25px",
           textAlign : "center"
         }
+
+        var modal_style = {
+          left : "15%",
+          display : this.state.show_fade_modal,
+          justifyContent : "center",
+          alignItems: "center",
+          position : "absolute",
+          backgroundColor : "white",
+          borderRadius : "2%",
+          border : "2px solid black",
+          zIndex: 2
+        }
+
+        var modal_header_style = {
+            textAlign : "center",
+            position: "relative",
+            display : "block",
+            margin : "1px"
+        }
+
+        var modal_button_style = {
+            margin : "auto",
+            marginBottom : "2px",
+            display : "block",
+            width : "50%",
+            height: "35%",
+            textAlign: "center"
+        }
+
+        var button_style = {
+            margin : "auto",
+            textAlign : "center",
+            display : "inlineBlock",
+            width : "25%",
+            height : "10%",
+            fontSize : "24px"
+        }
+
         return (
               <div>
                 <Col md lg xs />
@@ -210,6 +287,22 @@ class App extends Component {
                                 </div>
                         </Row>
                       <Row id="fade_row" style={{display : this.state.show_fade}}>
+                            <Col xs lg md style={{display : this.state.show_fade_modal,
+                                                  left : "15%",
+                                                  display : this.state.show_fade_modal,
+                                                  justifyContent : "center",
+                                                  alignItems: "center",
+                                                  position : "absolute",
+                                                  backgroundColor : "white",
+                                                  borderRadius : "2%",
+                                                  border : "2px solid black",
+                                                  zIndex: 2
+                                                }}>
+                                <h3 style={modal_header_style}>Select the image to fade out</h3>
+                                <h3 style={modal_header_style}>Select the image to fade in</h3>
+                                <h3 style={modal_header_style}>Press the button at the bottom</h3>
+                                <button onClick={this.trigger_fade_modal} style={modal_button_style}> Ok, got it!</button>
+                            </Col>
                             <label style={{
                                 margin : "auto", width : "85px",
                                 fontSize : "20px", textAlign : "center",
@@ -223,8 +316,8 @@ class App extends Component {
                                 }} onChange={this.choose_fadeout_image} type="file" id="choose_fadeout_image" />
                                 <b>Choose first!</b> 
                             </label>
-                                <div style={{marginTop: "10px", width: "100%", height: "100%", maxWidth: "100%", minWidth: "100%", minHeight: "100%"}}>
-                                    <img id="fadeout_image" style={{position : "relative", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.fadeout_image}  />
+                                <div style={{display:"flex",marginTop: "10px", width: "100%", maxWidth: "100%", minWidth: "100%", minHeight: "100%"}}>
+                                    <img id="fadeout_image" style={{margin : "auto", position : "relative", minHeight: "100%", maxWidth: "100%", maxHeight: "300px", textAlign: "center"}}src={this.state.fadeout_image}  />
                                 </div>
 
                             <label style={{
@@ -240,9 +333,40 @@ class App extends Component {
                                 }} onChange={this.choose_fadein_image} type="file" id="choose_fadein_image" />
                                 <b>Choose second!</b> 
                             </label>
-                                <div style={{marginTop: "10px", width: "100%", height: "100%", maxWidth: "100%", minWidth: "100%", minHeight: "100%"}}>
-                                    <img id="fadein_image" style={{position : "relative", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.fadein_image}  />
+                                <div style={{display:"flex", marginTop: "10px", width: "100%", maxWidth: "100%", minWidth: "100%", minHeight: "100%"}}>
+                                    <img id="fadein_image" style={{margin : "auto", position : "relative", minHeight: "100%", maxWidth: "100%", maxHeight: "300px", textAlign: "center"}}src={this.state.fadein_image}  />
                                 </div>
+                            <label style={{
+                                margin : "auto", width : "85px",
+                                fontSize : "20px", textAlign : "center",
+                                verticalAlign : "middle", color: "white",
+                                height : "85px", backgroundColor : "black",
+                                borderRadius : "50%", lineHeight : "350%",
+                                marginBottom : "10px"
+                            }}>
+                                <button style={{display : "none"}} onClick={this.fade_images}> </button>
+                                <b>Fade!</b> 
+                            </label>
+                            <div id="images_modal" style={{
+                                width : "99%",
+                                height : "80%",
+                                maxHeight : "100%",
+                                maxWidth: "100%",
+                                top : "10%",
+                                border : "1px solid black",
+                                display : this.state.show_fade_images,
+                                position : "absolute",
+                                zIndex: "3"
+                            }}>
+                                <div style={{maxWidth:"100%", maxHeight: "100%", backgroundColor : "white" ,height: "100%", width: "100%"}}>
+                                    <img id="image_one" style={{opacity:this.state.image_one_opacity, position : "absolute", width : "100%", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.fadeout_image}  />
+                                    <img id="image_two" style={{opacity:this.state.image_two_opacity, position : "absolute", width : "100%", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.fadein_image}  />
+                                </div>
+                                    <div style={{display:"flex"}}>
+                                        <button onClick={this.close_fade_images} style={button_style}> Close </button>
+                                        <button onClick={this.trigger_fade} style={button_style}> Fade!</button>
+                                    </div>
+                            </div>
                       </Row>
                 </Col>
                 <Col md lg xs />
