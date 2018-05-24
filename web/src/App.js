@@ -9,6 +9,10 @@ class App extends Component {
         super(props)
 
         this.state = {
+            show_blur : "none",
+            show_fade : "flex",
+            fadeout_image : "",
+            fadein_image : "",
             input_image : "", 
             output_image : "",
             intensity: 50
@@ -48,7 +52,7 @@ class App extends Component {
         })
         console.log(this.state.intensity);
     }
-
+    
     post = () => {
         var self = this;
         self.setState({
@@ -80,6 +84,61 @@ class App extends Component {
             console.log("No image")
         }
     }
+
+    //Stuff for fadein/out
+    choose_blur = () => {
+      console.log("BLUR")
+      var self = this;
+      self.setState({
+        show_blur : "flex",
+        show_fade : "none"
+      })
+    }
+    
+    choose_fade = () => {
+      console.log("FADE")
+      var self = this;
+      self.setState({
+        show_fade : "flex",
+        show_blur : "none"
+      })
+    }
+
+
+    choose_fadein_image = () => {
+        console.log("FADEIN IMAGE")
+        var self = this;
+        var selected_image= document.getElementById('choose_fadein_image').files[0];
+        if (selected_image) {
+            var reader  = new FileReader();
+            reader.onload = function(e)  {
+                var image = document.createElement("img");
+                image.src = e.target.result;
+                self.setState({
+                    fadein_image: image.src
+                })
+             }
+             reader.readAsDataURL(selected_image);
+        }
+    }
+    
+    choose_fadeout_image = () => {
+        console.log("FADEOUT IMAGE")
+        var self = this;
+        var selected_image= document.getElementById('choose_fadeout_image').files[0];
+        if (selected_image) {
+            var reader  = new FileReader();
+            reader.onload = function(e)  {
+                var image = document.createElement("img");
+                image.src = e.target.result;
+                self.setState({
+                    fadeout_image: image.src
+                })
+             }
+             reader.readAsDataURL(selected_image);
+        }
+    }
+
     render() {
         var header_style = {
             textAlign: "center",
@@ -93,10 +152,25 @@ class App extends Component {
             top: "110%",
             right : "50%"
         }
+
+        var radio_button_style = {
+          width : "25px",
+          height : "25px",
+          textAlign : "center"
+        }
         return (
-                <Col md lg xs>
-                        <h1 style={header_style}>Blur</h1>
-                        <Row>
+              <div>
+                <Col md lg xs />
+                <Col md lg xs style={{width: "100%"}}>
+                  <div style={header_style}>
+                        <h1 style={header_style}>Welcome!</h1>
+                        <h2>Would you like to...</h2>
+                        <form action="">
+                          <input style={radio_button_style} type="radio" onClick={this.choose_blur} label="Blur!" name="choice" value="blur"/> Blur! 
+                          <input style={radio_button_style} type="radio" onClick={this.choose_fade} name="choice" value="fade" /> Fade!
+                        </form>
+                  </div>
+                        <Row id="blur_row" style={{display: this.state.show_blur}}>
                             <label style={{
                                 margin : "auto", width : "85px",
                                 fontSize : "20px", textAlign : "center",
@@ -135,7 +209,44 @@ class App extends Component {
                                     </div>
                                 </div>
                         </Row>
+                      <Row id="fade_row" style={{display : this.state.show_fade}}>
+                            <label style={{
+                                margin : "auto", width : "85px",
+                                fontSize : "20px", textAlign : "center",
+                                verticalAlign : "middle", color: "white",
+                                height : "85px", backgroundColor : "grey",
+                                borderRadius : "50%", lineHeight : "350%",
+                                marginBottom : "10px"
+                            }}>
+                              <input style = {
+                                    {display: "none"
+                                }} onChange={this.choose_fadeout_image} type="file" id="choose_fadeout_image" />
+                                <b>Choose first!</b> 
+                            </label>
+                                <div style={{marginTop: "10px", width: "100%", height: "100%", maxWidth: "100%", minWidth: "100%", minHeight: "100%"}}>
+                                    <img id="fadeout_image" style={{position : "relative", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.fadeout_image}  />
+                                </div>
+
+                            <label style={{
+                                margin : "auto", width : "85px",
+                                fontSize : "20px", textAlign : "center",
+                                verticalAlign : "middle", color: "white",
+                                height : "85px", backgroundColor : "black",
+                                borderRadius : "50%", lineHeight : "350%",
+                                marginBottom : "10px"
+                            }}>
+                              <input style = {
+                                    {display: "none"
+                                }} onChange={this.choose_fadein_image} type="file" id="choose_fadein_image" />
+                                <b>Choose second!</b> 
+                            </label>
+                                <div style={{marginTop: "10px", width: "100%", height: "100%", maxWidth: "100%", minWidth: "100%", minHeight: "100%"}}>
+                                    <img id="fadein_image" style={{position : "relative", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.fadein_image}  />
+                                </div>
+                      </Row>
                 </Col>
+                <Col md lg xs />
+              </div>
         );
     }
 }
