@@ -10,7 +10,7 @@ class App extends Component {
 
         this.state = {
             show_blur : "none",
-            show_fade : "flex",
+            show_fade : "none",
             fadeout_image : "",
             fadein_image : "",
             input_image : "", 
