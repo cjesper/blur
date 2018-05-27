@@ -24,7 +24,17 @@ class App extends Component {
             selected_fade_speed : 0,
             first_border : "5px solid red",
             second_border : "",
-            fade_border : ""
+            fade_border : "",
+            fadein_cloudinary_url : "",
+            fadeout_cloudinary_url : "",
+            link_query_url : "",
+            link_status : "Generating..",
+            show_caption_input : "none",
+            link_fadein_src : "",
+            link_fadeout_src : "",
+            link_caption : "",
+            caption : "",
+            show_link_div : "none",
         }
     }
     fetch  = () => {
@@ -37,37 +47,55 @@ class App extends Component {
             })
     }   
 
-
-    // *********** Upload file to Cloudinary ******************** //
-    uploadFile = (file) => {
-      var cloudName = "gobblogg";
+    //FADEOUT
+    upload_fadeout_image = (file) => {
+      var self = this;
+      var cloudName = "gobblog";
       var unsignedUploadPreset = "ua2wzunv";
-      var url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
-      var xhr = new XMLHttpRequest();
+      var url = `https://api.cloudinary.com/v1_1/gobblog/auto/upload`;
       var fd = new FormData();
-      xhr.open('POST', url, true);
-      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-      xhr.onreadystatechange = function(e) {
-        if (xhr.readyState == 4 && xhr.status == 200) {
-          // File uploaded successfully
-          var response = JSON.parse(xhr.responseText);
-          // https://res.cloudinary.com/cloudName/image/upload/v1483481128/public_id.jpg
-          var url = response.secure_url;
-          // Create a thumbnail of the uploaded image, with 150px width
-          var tokens = url.split('/');
-          tokens.splice(-2, 0, 'w_150,c_scale');
-          var img = new Image(); // HTML5 Constructor
-          img.src = tokens.join('/');
-          img.alt = response.public_id;
-        }
-      };
-
+    
       fd.append('upload_preset', unsignedUploadPreset);
       fd.append('tags', 'browser_upload'); // Optional - add tag for image admin in Cloudinary
       fd.append('file', file);
-      xhr.send(fd);
+
+      axios.post(url, fd)
+        .then((res) => {
+            console.log(res.data.secure_url)
+            self.setState({
+                fadeout_cloudinary_url : res.data.secure_url
+            })
+        })
+        .catch ((err) => {
+            console.log(err)
+        })
     }
+
+    //FADEIN
+    upload_fadein_image = (file) => {
+      var self = this;
+      var cloudName = "gobblog";
+      var unsignedUploadPreset = "ua2wzunv";
+      var url = `https://api.cloudinary.com/v1_1/gobblog/auto/upload`;
+      var fd = new FormData();
+    
+      fd.append('upload_preset', unsignedUploadPreset);
+      fd.append('tags', 'browser_upload'); // Optional - add tag for image admin in Cloudinary
+      fd.append('file', file);
+
+      axios.post(url, fd)
+        .then((res) => {
+            console.log(res.data.secure_url)
+            self.setState({
+                fadein_cloudinary_url : res.data.secure_url
+            })
+
+        })
+        .catch ((err) => {
+            console.log(err)
+        })
+    }
+
 
     display_original = () => {
         var self = this;
@@ -181,8 +209,51 @@ class App extends Component {
                 })
              }
              reader.readAsDataURL(selected_image);
-             this.uploadFile(selected_image);
         }
+    }
+
+    upload_to_cloudinary = () => {
+        console.log("IN HERE!");
+        var fadein_image = document.getElementById('choose_fadein_image').files[0];
+        var fadeout_image = document.getElementById('choose_fadeout_image').files[0];
+        var self = this;
+        var cloudName = "gobblog";
+        var unsignedUploadPreset = "ua2wzunv";
+        var url = `https://api.cloudinary.com/v1_1/gobblog/auto/upload`;
+        var fadein_fd = new FormData();
+        var fadeout_fd = new FormData();
+        
+        fadein_fd.append('upload_preset', unsignedUploadPreset);
+        fadein_fd.append('tags', 'browser_upload'); // Optional - add tag for image admin in Cloudinary
+        fadein_fd.append('file', fadein_image);
+        
+        //Upload fade in image...
+        axios.post(url, fadein_fd)
+        .then((res) => {
+            console.log(res.data.secure_url)
+            self.setState({
+                fadein_cloudinary_url : res.data.secure_url
+            })
+            //If successful, upload fade out image
+            fadeout_fd.append('upload_preset', unsignedUploadPreset);
+            fadeout_fd.append('tags', 'browser_upload'); // Optional - add tag for image admin in Cloudinary
+            fadeout_fd.append('file', fadeout_image);
+            axios.post(url, fadeout_fd)
+            .then((res) => {
+                console.log(res.data.secure_url)
+                self.setState({
+                    fadeout_cloudinary_url : res.data.secure_url
+                })
+                //If that worked, create the link with query params and open!
+                this.create_link();
+            })
+            .catch((err) => {
+                console.log(err);
+            })
+        })
+        .catch ((err) => {
+            console.log(err)
+        })
     }
     
     choose_fadeout_image = () => {
@@ -200,7 +271,6 @@ class App extends Component {
                 })
              }
              reader.readAsDataURL(selected_image);
-              this.uploadFile(selected_image);
         }
     }
 
@@ -220,7 +290,115 @@ class App extends Component {
         }, interval_timer);
     }
 
+    create_link = () => {
+        var self = this;
+        if (self.state.fadein_cloudinary_url != "" && self.state.fadeout_cloudinary_url != "") {
+            console.log("AFFF?")
+            var url_with_params = '/link?'+"fadein_url="+self.state.fadein_cloudinary_url+"?fadeout_url="+self.state.fadeout_cloudinary_url+"?caption="+self.state.link_caption 
+            self.setState({
+                link_query_url : url_with_params,
+                link_status : "Done!"
+            })
+        } else {
+            console.log("Can't create link yet")
+        }
+    }
+
+    handle_caption_change = (e) => {
+        this.setState({
+            link_caption : e.target.value
+        })
+    }
+
+    get_query_params = () => {
+        var self = this;
+        var url = window.location.href;
+        var fadein_url = url.split('?')[1]
+        var fadeout_url = url.split('?')[2]
+        var caption = url.split('?')[3]
+        var parsed_caption = caption.split('=')[1]
+        parsed_caption = parsed_caption.replace(/%20/gi, " ");
+        var fadein_src = fadein_url.split('=')[1]
+        var fadeout_src = fadeout_url.split('=')[1]
+        console.log(caption)
+        self.setState({
+            link_fadein_src : fadein_src,
+            link_fadeout_src : fadeout_src,
+            caption : parsed_caption 
+        })
+    }
+
+    provide_caption = () => {
+        var self = this;
+        self.setState({
+            show_caption_input : "block"
+        });
+    }
+
+    open_link = () => {
+        var self = this;
+        window.open(self.state.link_query_url)
+    }
+
+    copy_link = () => {
+        var copy_text = window.location.href;
+        console.log(copy_text)
+        document.execCommand("copy");
+    }
+
+    initiate_linking = () => {
+        var self = this;
+        console.log("LINKING!")
+        self.upload_to_cloudinary();
+        this.setState({
+            show_caption_input : "none",
+            show_link_div :"block"
+        })
+    }
+    close_linking = () => {
+        var self = this;
+        this.setState({
+            show_caption_input : "none",
+            show_link_div :"none"
+        })
+        
+    }
+    trigger_link_fade = () => {
+        var self = this;
+        var old_one_opacity = 1;
+        var old_two_opacity = 0;
+        var interval_timer = 100;
+        var timer = setInterval(() => {
+            if (old_one_opacity <= 0) {
+                clearInterval(timer)
+            }
+            old_one_opacity = old_one_opacity-0.01;
+            old_two_opacity = old_two_opacity+0.01;
+            document.getElementById("link_image_one").style.opacity=old_one_opacity;
+            document.getElementById("link_image_two").style.opacity=old_two_opacity;
+        }, interval_timer);
+    }
+
+    componentWillMount = () => {
+        var url = window.location.href;
+        var is_link = false;
+        if (url.indexOf('/link') >= 0) {
+            console.log("Link here!");
+            this.get_query_params(); 
+        }
+        
+    }
+
     render() {
+        console.log(this.state)
+
+        var url = window.location.href;
+        var is_link = false;
+        if (url.indexOf('/link') >= 0) {
+            console.log("Link here!");
+            is_link = true;
+        }
+        
         var header_style = {
             textAlign: "center",
         }
@@ -276,7 +454,31 @@ class App extends Component {
             height : "10%",
             fontSize : "24px"
         }
-
+        //If this is a user created link, return that instead
+        if (is_link == true) {
+            return (
+                <div>
+                <h1 style={{textAlign : "center"}}>{this.state.caption}</h1>
+                <div style={{
+                                width : "99%",
+                                height : "80%",
+                                maxHeight : "100%",
+                                maxWidth: "100%",
+                                top : "15%",
+                                border : "1px solid black",
+                                position : "absolute",
+                            }}>
+                                <div style={{maxWidth:"100%", maxHeight: "100%", backgroundColor : "white" ,height: "100%", width: "100%"}}>
+                                    <img id="link_image_one" style={{opacity:this.state.image_one_opacity, position : "absolute", width : "100%", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.link_fadeout_src}  />
+                                    <img id="link_image_two" style={{opacity:this.state.image_two_opacity, position : "absolute", width : "100%", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.link_fadein_src}  />
+                                </div>
+                                    <div style={{display:"flex"}}>
+                                        <button onClick={this.trigger_link_fade} style={button_style}> Fade!</button>
+                                    </div>
+                            </div>
+                </div>
+            )
+        } else {
         return (
               <div>
                 <Col md lg xs />
@@ -404,9 +606,38 @@ class App extends Component {
                                     <img id="image_one" style={{opacity:this.state.image_one_opacity, position : "absolute", width : "100%", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.fadeout_image}  />
                                     <img id="image_two" style={{opacity:this.state.image_two_opacity, position : "absolute", width : "100%", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.fadein_image}  />
                                 </div>
+                                <div style={
+                                        {zindex : 5, border : "2px solid black", 
+                                                display: this.state.show_caption_input, position : "absolute",
+                                                top : "50%", left : "30%",
+                                                width : "40%", height : "15%",
+                                                borderradius : "2%", backgroundColor : "white"
+                                        }} >
+                                    <form>
+                                        <label style={{textAlign : "center"}}>
+                                        <b style={{display:"block"}}> Caption (optional) </b>
+                                        <input onChange={this.handle_caption_change} value={this.state.link_caption} style={{margin:"auto", display:"block", width: "95%"}}type="text"></input> 
+                                        </label>
+                                    </form>
+                                        <button style={{display:"block", margin : "auto"}} onClick={this.initiate_linking}> Create! </button>
+                                </div>
                                     <div style={{display:"flex"}}>
                                         <button onClick={this.close_fade_images} style={button_style}> Close </button>
                                         <button onClick={this.trigger_fade} style={button_style}> Fade!</button>
+                                        <button onClick={this.provide_caption} style={button_style}> Create link!</button>
+                                    </div>
+                            </div>
+                            <div style={
+                                    {zIndex : 10, border : "2px solid black", 
+                                            display: this.state.show_link_div, position : "absolute",
+                                            top : "50%", left : "30%",
+                                            width : "40%", height : "15%",
+                                            borderradius : "2%", backgroundColor : "white"
+                                    }} >
+                                    <h3 style={{textAlign:"center"}}>{this.state.link_status}</h3>
+                                    <div style={{display: "flex"}}>
+                                        <button onClick={this.open_link}> Open link</button>
+                                        <button onClick={this.close_linking}> Close</button>
                                     </div>
                             </div>
                       </Row>
@@ -414,6 +645,7 @@ class App extends Component {
                 <Col md lg xs />
               </div>
         );
+    }
     }
 }
 
