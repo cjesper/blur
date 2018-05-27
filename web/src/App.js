@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import axios from 'axios';
 import {Row, Col} from 'react-flexbox-grid';
+import cloudinary from "cloudinary-jquery-file-upload";
 
 class App extends Component {
     constructor(props) {
@@ -35,6 +36,38 @@ class App extends Component {
                 console.log(err)
             })
     }   
+
+
+    // *********** Upload file to Cloudinary ******************** //
+    uploadFile = (file) => {
+      var cloudName = "gobblogg";
+      var unsignedUploadPreset = "ua2wzunv";
+      var url = `https://api.cloudinary.com/v1_1/${cloudName}/upload`;
+      var xhr = new XMLHttpRequest();
+      var fd = new FormData();
+      xhr.open('POST', url, true);
+      xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+      xhr.onreadystatechange = function(e) {
+        if (xhr.readyState == 4 && xhr.status == 200) {
+          // File uploaded successfully
+          var response = JSON.parse(xhr.responseText);
+          // https://res.cloudinary.com/cloudName/image/upload/v1483481128/public_id.jpg
+          var url = response.secure_url;
+          // Create a thumbnail of the uploaded image, with 150px width
+          var tokens = url.split('/');
+          tokens.splice(-2, 0, 'w_150,c_scale');
+          var img = new Image(); // HTML5 Constructor
+          img.src = tokens.join('/');
+          img.alt = response.public_id;
+        }
+      };
+
+      fd.append('upload_preset', unsignedUploadPreset);
+      fd.append('tags', 'browser_upload'); // Optional - add tag for image admin in Cloudinary
+      fd.append('file', file);
+      xhr.send(fd);
+    }
 
     display_original = () => {
         var self = this;
@@ -148,6 +181,7 @@ class App extends Component {
                 })
              }
              reader.readAsDataURL(selected_image);
+             this.uploadFile(selected_image);
         }
     }
     
@@ -166,6 +200,7 @@ class App extends Component {
                 })
              }
              reader.readAsDataURL(selected_image);
+              this.uploadFile(selected_image);
         }
     }
 
