@@ -302,7 +302,8 @@ class App extends Component {
             })
             var base_api_url = "https://api-ssl.bitly.com"
             var method = "/v3/shorten?";
-            var params = "access_token="+this.state.hush+"&longURL="+url_with_params;
+            var base_blur = "http://blur.carlssonjesper.com";
+            var params = "access_token="+this.state.hush+"&longURL="+base_blur+""+url_with_params;
             //var params = "access_token="+this.state.hush+"&longURL=http://www.google.se"
             var call = base_api_url + method + params;
             console.log(call)
