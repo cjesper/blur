@@ -294,7 +294,7 @@ class App extends Component {
         var self = this;
         if (self.state.fadein_cloudinary_url != "" && self.state.fadeout_cloudinary_url != "") {
             console.log("AFFF?")
-            var url_with_params = '/link?'+"fadein_url="+self.state.fadein_cloudinary_url+"?fadeout_url="+self.state.fadeout_cloudinary_url+"?caption="+self.state.link_caption 
+            var url_with_params = '/link?'+"fadein_url="+self.state.fadein_cloudinary_url+"?fadeout_url="+self.state.fadeout_cloudinary_url+"?caption="+encodeURIComponent(self.state.link_caption)
             self.setState({
                 link_query_url : url_with_params,
                 link_status : "Done!"
@@ -317,7 +317,11 @@ class App extends Component {
         var fadeout_url = url.split('?')[2]
         var caption = url.split('?')[3]
         var parsed_caption = caption.split('=')[1]
+        //Hack the encoding
         parsed_caption = parsed_caption.replace(/%20/gi, " ");
+        parsed_caption = parsed_caption.replace(/%C3%A5/gi, "å");
+        parsed_caption = parsed_caption.replace(/%C3%A4/gi, "ä");
+        parsed_caption = parsed_caption.replace(/%C3%B6/gi, "ö");
         var fadein_src = fadein_url.split('=')[1]
         var fadeout_src = fadeout_url.split('=')[1]
         console.log(caption)
@@ -456,27 +460,29 @@ class App extends Component {
         }
         //If this is a user created link, return that instead
         if (is_link == true) {
+            this.trigger_link_fade();
             return (
-                <div>
-                <h1 style={{textAlign : "center"}}>{this.state.caption}</h1>
+                <Col xs lg md>
                 <div style={{
                                 width : "99%",
                                 height : "80%",
                                 maxHeight : "100%",
                                 maxWidth: "100%",
-                                top : "15%",
                                 border : "1px solid black",
                                 position : "absolute",
                             }}>
+                <h1 style={{textAlign : "center"}}>{this.state.caption}</h1>
                                 <div style={{maxWidth:"100%", maxHeight: "100%", backgroundColor : "white" ,height: "100%", width: "100%"}}>
                                     <img id="link_image_one" style={{opacity:this.state.image_one_opacity, position : "absolute", width : "100%", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.link_fadeout_src}  />
                                     <img id="link_image_two" style={{opacity:this.state.image_two_opacity, position : "absolute", width : "100%", minHeight: "100%", maxWidth: "100%", maxHeight: "100%", textAlign: "center"}}src={this.state.link_fadein_src}  />
                                 </div>
-                                    <div style={{display:"flex"}}>
+                                    <div style={{
+                                          display:"flex",
+                                          border : "2px solid black"}}>
                                         <button onClick={this.trigger_link_fade} style={button_style}> Fade!</button>
                                     </div>
                             </div>
-                </div>
+                </Col>
             )
         } else {
         return (
