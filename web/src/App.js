@@ -35,6 +35,8 @@ class App extends Component {
             link_caption : "",
             caption : "",
             show_link_div : "none",
+            hush : "5f02dcdc085a1abc805938b6ef6406f49a45017f",
+            shortened_url : ""
         }
     }
     fetch  = () => {
@@ -293,12 +295,27 @@ class App extends Component {
     create_link = () => {
         var self = this;
         if (self.state.fadein_cloudinary_url != "" && self.state.fadeout_cloudinary_url != "") {
-            console.log("AFFF?")
             var url_with_params = '/link?'+"fadein_url="+self.state.fadein_cloudinary_url+"?fadeout_url="+self.state.fadeout_cloudinary_url+"?caption="+encodeURIComponent(self.state.link_caption)
             self.setState({
                 link_query_url : url_with_params,
                 link_status : "Done!"
             })
+            var base_api_url = "https://api-ssl.bitly.com"
+            var method = "/v3/shorten?";
+            var params = "access_token="+this.state.hush+"&longURL="+url_with_params;
+            //var params = "access_token="+this.state.hush+"&longURL=http://www.google.se"
+            var call = base_api_url + method + params;
+            console.log(call)
+            axios.get(call)
+              .then((res) =>  {
+                var short_url = res.data.data.url
+                self.setState({
+                  shortened_url : short_url 
+                })
+              })
+              .catch((err) => {
+                console.log(err)
+              });
         } else {
             console.log("Can't create link yet")
         }
@@ -341,7 +358,7 @@ class App extends Component {
 
     open_link = () => {
         var self = this;
-        window.open(self.state.link_query_url)
+        window.open(self.state.shortened_url)
     }
 
     copy_link = () => {
@@ -622,7 +639,7 @@ class App extends Component {
                                     <form>
                                         <label style={{textAlign : "center"}}>
                                         <b style={{display:"block"}}> Caption (optional) </b>
-                                        <input onChange={this.handle_caption_change} value={this.state.link_caption} style={{margin:"auto", display:"block", width: "95%"}}type="text"></input> 
+                                        <input onChange={this.handle_caption_change} value={this.state.link_caption} style={{margin:"auto", display:"block", width: "95%", borderRadius : "2px"}}type="text"></input> 
                                         </label>
                                     </form>
                                         <button style={{display:"block", margin : "auto"}} onClick={this.initiate_linking}> Create! </button>
@@ -636,13 +653,15 @@ class App extends Component {
                             <div style={
                                     {zIndex : 10, border : "2px solid black", 
                                             display: this.state.show_link_div, position : "absolute",
-                                            top : "50%", left : "30%",
-                                            width : "40%", height : "15%",
+                                            top : "50%", left : "20%",
+                                            width : "60%", height : "15%",
+                                            maxWidth : "500px",
                                             borderradius : "2%", backgroundColor : "white"
                                     }} >
                                     <h3 style={{textAlign:"center"}}>{this.state.link_status}</h3>
-                                    <div style={{display: "flex"}}>
-                                        <button onClick={this.open_link}> Open link</button>
+                                      <a style={{textAlign:"center", display:"block"}} href={this.state.shortened_url}>{this.state.shortened_url}</a>
+                                    <div style={{textAlign:"center", display: "block"}}>
+                                        <button style={{height:"20%", width:"20%"}} onClick={this.open_link}> Open link</button>
                                         <button onClick={this.close_linking}> Close</button>
                                     </div>
                             </div>
