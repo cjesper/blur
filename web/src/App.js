@@ -5,10 +5,12 @@ import axios from 'axios';
 import {Row, Col} from 'react-flexbox-grid';
 import cloudinary from "cloudinary-jquery-file-upload";
 
+const DEV = false
+
 class App extends Component {
     constructor(props) {
         super(props)
-
+    
         this.state = {
             show_blur : "none",
             show_fade : "none",
@@ -48,6 +50,7 @@ class App extends Component {
                 console.log(err)
             })
     }   
+
 
     //FADEOUT
     upload_fadeout_image = (file) => {
@@ -215,7 +218,6 @@ class App extends Component {
     }
 
     upload_to_cloudinary = () => {
-        console.log("IN HERE!");
         var fadein_image = document.getElementById('choose_fadein_image').files[0];
         var fadeout_image = document.getElementById('choose_fadeout_image').files[0];
         var self = this;
@@ -232,7 +234,6 @@ class App extends Component {
         //Upload fade in image...
         axios.post(url, fadein_fd)
         .then((res) => {
-            console.log(res.data.secure_url)
             self.setState({
                 fadein_cloudinary_url : res.data.secure_url
             })
@@ -242,7 +243,6 @@ class App extends Component {
             fadeout_fd.append('file', fadeout_image);
             axios.post(url, fadeout_fd)
             .then((res) => {
-                console.log(res.data.secure_url)
                 self.setState({
                     fadeout_cloudinary_url : res.data.secure_url
                 })
@@ -303,10 +303,12 @@ class App extends Component {
             var base_api_url = "https://api-ssl.bitly.com"
             var method = "/v3/shorten?";
             var base_blur = "http://blur.carlssonjesper.com";
+            //if (!DEV) {
+            //  base_blur = "localhost:3000"
+            //}
             var params = "access_token="+this.state.hush+"&longURL="+base_blur+""+url_with_params;
             //var params = "access_token="+this.state.hush+"&longURL=http://www.google.se"
             var call = base_api_url + method + params;
-            console.log(call)
             axios.get(call)
               .then((res) =>  {
                 var short_url = res.data.data.url
@@ -370,7 +372,6 @@ class App extends Component {
 
     initiate_linking = () => {
         var self = this;
-        console.log("LINKING!")
         self.upload_to_cloudinary();
         this.setState({
             show_caption_input : "none",
@@ -412,7 +413,6 @@ class App extends Component {
     }
 
     render() {
-        console.log(this.state)
 
         var url = window.location.href;
         var is_link = false;
@@ -511,7 +511,6 @@ class App extends Component {
                         <h1 style={header_style}>Welcome!</h1>
                         <h2>Would you like to...</h2>
                         <form action="">
-                          <input style={radio_button_style} type="radio" onClick={this.choose_blur} label="Blur!" name="choice" value="blur"/> Blur! 
                           <input style={radio_button_style} type="radio" onClick={this.choose_fade} name="choice" value="fade" /> Fade!
                         </form>
                   </div>
