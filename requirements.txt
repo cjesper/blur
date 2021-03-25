@@ -51,7 +51,7 @@ pyOpenSSL==17.2.0
 PyQRCode==1.2.1
 PyTrie==0.3
 pyxdg==0.25
-PyYAML==3.12
+PyYAML==5.4
 requests==2.18.3
 sdnotify==0.3.2
 SecretStorage==2.3.1
