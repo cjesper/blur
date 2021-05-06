@@ -16,7 +16,7 @@ crossbar==17.6.1.post3
 cryptography==2.0.3
 enum34==1.1.6
 Flask==1.0.2
-Flask-Cors==3.0.4
+Flask-Cors==3.0.9
 gyp==0.1
 h2==2.6.2
 hpack==3.0.0
