@@ -61,7 +61,7 @@ shutilwhich==1.1.0
 six==1.11.0
 sortedcontainers==1.5.7
 treq==17.7.0
-Twisted==17.5.0
+Twisted==22.2.0
 txaio==2.8.1
 u-msgpack-python==2.4.1
 unity-lens-photos==1.0
